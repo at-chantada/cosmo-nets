@@ -5,24 +5,31 @@ from neurodiffeq.solvers import BundleSolution1D
 from utils import CustomCondition, quint_reparams
 import torch
 
-z_0 = 10
-N_0_abs = np.abs(np.log(1/(1 + z_0)))
-lam_max = 3
+# Load the networks:
+
 nets = torch.load('nets_Quintessence.ph',
-                  map_location=torch.device('cpu')  # Needed if trained in GPU but this sciprt is executed in CPU
+                  map_location=torch.device('cpu')  # Needed if trained on GPU but this sciprt is executed on CPU
                   )
 
 
 # Define the reparametrizations that enforces the initial conditions:
+
+z_0 = 10.0
+N_0_abs = np.abs(np.log(1/(1 + z_0)))
+lam_max = 3.0
 
 quint = quint_reparams(N_0_abs=N_0_abs)
 
 conditions = [CustomCondition(quint.x_reparam),
               CustomCondition(quint.y_reparam)]
 
+# Incorporate the nets and the reparametrizations into a solver:
+
 x = BundleSolution1D([nets[0]], [conditions[0]])
 y = BundleSolution1D([nets[1]], [conditions[1]])
 
+
+# The Hubble parameter as a function of the dependent variables of the system:
 
 def H_quint(z, lam, Om_m_0, H_0, x, y):
     r"""The Hubble parameter, :math:`H`, as a function of the redshift :math:`z`, the parameters of the funcion,
@@ -71,6 +78,8 @@ def H_quint(z, lam, Om_m_0, H_0, x, y):
 
     return H
 
+
+# Plot the Hubble parameter for different values of the independent variable an its parameters:
 
 zs = np.linspace(0, 3)
 for lam in np.linspace(0, 3, 3):

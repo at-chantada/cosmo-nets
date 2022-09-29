@@ -5,18 +5,15 @@ from neurodiffeq.solvers import BundleSolution1D
 from utils import CustomCondition, HS_reparams
 import torch
 
-# Load the networks
+# Load the networks:
 nets = torch.load('nets_HS.ph',
-                  map_location=torch.device('cpu')  # Needed if trained in GPU but this sciprt is executed in CPU
+                  map_location=torch.device('cpu')  # Needed if trained on GPU but this sciprt is executed on CPU
                   )
 
-# Define the reparametrizations:
+# Define the reparametrizations that enforce the initial conditions:
 
 z_0 = 10.0
-b_max = 5
-
-
-# Define the reparametrizations that enforce the initial conditions:
+b_max = 5.0
 
 HS = HS_reparams(z_0=z_0, alpha=1/6)
 
@@ -25,12 +22,14 @@ conditions = [CustomCondition(HS.x_reparam),
               CustomCondition(HS.v_reparam),
               CustomCondition(HS.Om_reparam),
               CustomCondition(HS.r_prime_reparam)]
+
 # Incorporate the nets and the reparametrizations into a solver:
+
 v = BundleSolution1D([nets[1]], [conditions[1]])
 r_prime = BundleSolution1D([nets[4]], [conditions[4]])
 
 
-# The Hubble parameter as a function of the dependent variables of the system
+# The Hubble parameter as a function of the dependent variables of the system:
 
 def H_HS(z, b, Om_m_0, H_0, v, r_prime):
     r"""The Hubble parameter, :math:`H`, as a function of the redshift :math:`z`, the parameters of the funcion,
@@ -80,7 +79,7 @@ def H_HS(z, b, Om_m_0, H_0, v, r_prime):
     return H
 
 
-# Plot the Hubble parameter for different values of the independent variable an its parameters
+# Plot the Hubble parameter for different values of the independent variable an its parameters:
 
 zs = np.linspace(0, 3)
 for b in np.linspace(0, 5, 3):

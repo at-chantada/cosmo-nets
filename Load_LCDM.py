@@ -5,22 +5,28 @@ from neurodiffeq.solvers import BundleSolution1D
 from neurodiffeq.conditions import BundleIVP
 import torch
 
-z_0 = 0
-
+# Load the networks:
 nets = torch.load('nets_LCDM.ph',
-                  map_location=torch.device('cpu')  # Needed if trained in GPU but this sciprt is executed in CPU
+                  map_location=torch.device('cpu')  # Needed if trained on GPU but this sciprt is executed on CPU
                   )
+
+# Define the reparametrizations that enforce the initial conditions:
+
+z_0 = 0.0
 
 conditions = [BundleIVP(t_0=z_0, bundle_conditions={'u_0': 0}), ]
 
-x_m = BundleSolution1D(nets, conditions)
+# Incorporate the nets and the reparametrizations into a solver:
+x = BundleSolution1D(nets, conditions)
+
+# The Hubble parameter as a function of the dependent variable of the system:
 
 
-def H_LCDM(z, Om_m_0, H_0, x_m):
+def H_LCDM(z, Om_m_0, H_0, x):
     r"""The Hubble parameter, :math:`H`, as a function of the redshift :math:`z`, the parameters of the funcion,
     and the reparametrized output of the network:
 
-    :math:`\displaystyle H=H_0\sqrt{\tilde{x}_m+1-\Omega_{m,0}}.`
+    :math:`\displaystyle H=H_0\sqrt{\tilde{x}+1-\Omega_{m,0}}.`
 
     :param z: The redshift.
     :type z: float or `numpy.array`.
@@ -28,10 +34,10 @@ def H_LCDM(z, Om_m_0, H_0, x_m):
     :type Om_m_0: float.
     :param H_0: The second parameter of the function.
     :type H_0: float.
-    :param x_m:
+    :param x:
         The reparametrized output of the network that represents the dependent variable
         of the differential system of :math:`\Lambda\mathrm{CDM}`.
-    :type x_m function.
+    :type x function.
     :return: The value of the Hubble parameter.
     :rtype: float or `numpy.array`.
     """
@@ -40,16 +46,18 @@ def H_LCDM(z, Om_m_0, H_0, x_m):
 
     Om_m_0s = Om_m_0*shape
 
-    x_ms = x_m(z, Om_m_0s, to_numpy=True)
+    xs = x(z, Om_m_0s, to_numpy=True)
 
-    H = H_0 * ((x_ms + (1 - Om_m_0)) ** (1/2))
+    H = H_0 * ((xs + (1 - Om_m_0)) ** (1/2))
 
     return H
 
 
+# Plot the Hubble parameter for different values of the independent variable an its parameters:
+
 zs = np.linspace(0, 3)
 for Om_m_0 in np.linspace(0.1, 0.4, 6):
-    Hs = H_LCDM(zs, Om_m_0, 73, x_m)
+    Hs = H_LCDM(zs, Om_m_0, 73, x)
     plt.plot(zs, Hs, label=r'$\Omega_{m,0}=$' + str(np.round(Om_m_0, 3)))
 
 

@@ -1,6 +1,7 @@
+# Import libraries:
 import numpy as np
 import matplotlib.pyplot as plt
-from neurodiffeq import diff      # the differentiation operation
+from neurodiffeq import diff  # the differentiation operation
 from utils import CustomCondition, quint_reparams
 from neurodiffeq.solvers import BundleSolver1D
 import torch
@@ -17,15 +18,15 @@ N_prime_f = 1.0
 
 Om_m_0_min = 0.1
 Om_m_0_max = 0.4
+
 lam_prime_min = 0.0
 lam_prime_max = 1.0
 
-
 # Define the differential equation:
 
-z_0 = 10
+z_0 = 10.0
 N_0_abs = np.abs(np.log(1/(1 + z_0)))
-lam_max = 3
+lam_max = 3.0
 
 
 def ODEs_quint(x, y, N_prime, *theta):
@@ -59,15 +60,15 @@ def ODEs_quint(x, y, N_prime, *theta):
     return res_1, res_2
 
 
-# Define the reparametrizations that enforces the initial conditions:
+# Define the custom reparametrizations that enforce the initial conditions:
 
 quint = quint_reparams(N_0_abs=N_0_abs)
 
 conditions = [CustomCondition(quint.x_reparam),
               CustomCondition(quint.y_reparam)]
 
-# Define a custom loss function:
 
+# Define a custom loss function:
 
 def weighted_loss_quint(res, f, t):
     r"""A custom loss function. While the default loss is the sum of the squares of the residuals,
@@ -95,9 +96,11 @@ def weighted_loss_quint(res, f, t):
 
 
 # Define the ANN based solver:
-
-solver = BundleSolver1D(ode_system=ODEs_quint, conditions=conditions, t_min=N_prime_0, t_max=N_prime_f,
-                        theta_min=(lam_prime_min, Om_m_0_min), theta_max=(lam_prime_max, Om_m_0_max),
+solver = BundleSolver1D(ode_system=ODEs_quint,
+                        conditions=conditions,
+                        t_min=N_prime_0, t_max=N_prime_f,
+                        theta_min=(lam_prime_min, Om_m_0_min),
+                        theta_max=(lam_prime_max, Om_m_0_max),
                         criterion=weighted_loss_quint,
                         )
 
@@ -118,5 +121,5 @@ plt.legend()
 plt.suptitle('Total loss during training')
 plt.savefig('loss.png')
 
-# Save the NN:
+# Save the neural network:
 torch.save(solver._get_internal_variables()['best_nets'], 'nets_Quintessence.ph')

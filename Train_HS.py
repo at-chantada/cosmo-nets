@@ -1,7 +1,7 @@
 # Import libraries
 import matplotlib.pyplot as plt
 from neurodiffeq.generators import Generator1D
-from neurodiffeq import diff      # the differentiation operation
+from neurodiffeq import diff  # the differentiation operation
 from neurodiffeq.solvers import BundleSolver1D
 from utils import CustomCondition, HS_reparams
 import torch
@@ -18,13 +18,14 @@ z_prime_f = 1.0
 
 b_prime_min = 1e-13
 b_prime_max = 1.0
+
 Om_m_0_min = 0.1
 Om_m_0_max = 0.4
 
 # Define the differential equation:
 
 z_0 = 10.0
-b_max = 5
+b_max = 5.0
 
 
 def ODEs_HS(x, y, v, Om, r_prime, z_prime, *theta):
@@ -80,11 +81,11 @@ def ODEs_HS(x, y, v, Om, r_prime, z_prime, *theta):
     """
     b_prime = theta[0]
 
-    b = b_max*b_prime
+    b = b_max * b_prime
     z = z_0 * (1 - z_prime)
     r = torch.exp(r_prime)
 
-    Gamma = (r + b)*(((r+b)**2) - 2*b)/(4*r*b)
+    Gamma = (r + b)*(((r + b)**2) - 2*b)/(4*r*b)
 
     # Equation System:
     res_1 = diff(x, z_prime) + z_0*(-Om - 2*v + x + 4*y + x*v + x**2)/(z + 1)
@@ -96,7 +97,7 @@ def ODEs_HS(x, y, v, Om, r_prime, z_prime, *theta):
     return [res_1, res_2, res_3, res_4, res_5]
 
 
-# Define the reparametrizations that enforces the initial conditions:
+# Define the custom reparametrizations that enforce the initial conditions:
 
 HS = HS_reparams(z_0=z_0, alpha=1/6)
 
@@ -106,28 +107,30 @@ conditions = [CustomCondition(HS.x_reparam),
               CustomCondition(HS.Om_reparam),
               CustomCondition(HS.r_prime_reparam)]
 
-# Define the generetors of the training points for the inputs of the ANN:
+# Define the generetors of the training points for the indepndent variable:
 
-N_batch = [32, 32, 32]
+tgz = Generator1D(32, t_min=z_prime_0, t_max=z_prime_f)
 
-tgz = Generator1D(N_batch[0], t_min=z_prime_0, t_max=z_prime_f)
+vgz = Generator1D(32, t_min=z_prime_0, t_max=z_prime_f)
 
-tgb = Generator1D(N_batch[1], t_min=b_prime_min, t_max=b_prime_max)
+# Define the generetors of the training points for the parameters of the bundle:
 
-tgO = Generator1D(N_batch[2], t_min=Om_m_0_min, t_max=Om_m_0_max)
+tgb = Generator1D(32, t_min=b_prime_min, t_max=b_prime_max)
+
+tgO = Generator1D(32, t_min=Om_m_0_min, t_max=Om_m_0_max)
+
+vgb = Generator1D(32, t_min=b_prime_min, t_max=b_prime_max)
+
+vgO = Generator1D(32, t_min=Om_m_0_min, t_max=Om_m_0_max)
+
+# Combine all the generators to create the generator for all the input training points:
 
 train_gen = tgz ^ tgb ^ tgO
 
-vgz = Generator1D(N_batch[0], t_min=z_prime_0, t_max=z_prime_f)
-
-vgb = Generator1D(N_batch[1], t_min=b_prime_min, t_max=b_prime_max)
-
-vgO = Generator1D(N_batch[2], t_min=Om_m_0_min, t_max=Om_m_0_max)
-
 valid_gen = vgz ^ vgb ^ vgO
 
-# Define a custom loss function:
 
+# Define a custom loss function:
 
 def custom_loss_HS(res, f, t):
     r"""A custom loss function.
@@ -199,18 +202,19 @@ def custom_loss_HS(res, f, t):
     return loss
 
 
-# Build the solver:
-solver = BundleSolver1D(
-    ode_system=ODEs_HS, conditions=conditions,
-    t_min=z_prime_0, t_max=z_prime_f,
-    train_generator=train_gen,
-    valid_generator=valid_gen,
-    criterion=custom_loss_HS
-    )
+# Define the ANN based solver:
+solver = BundleSolver1D(ode_system=ODEs_HS,
+                        conditions=conditions,
+                        t_min=z_prime_0, t_max=z_prime_f,
+                        train_generator=train_gen,
+                        valid_generator=valid_gen,
+                        criterion=custom_loss_HS
+                        )
+
+# Set the amount of interations to train the solver:
+iterations = 3000
+
 # Start training:
-
-iterations = 2000
-
 solver.fit(iterations)
 
 # Plot the loss during training, and save it:
@@ -224,5 +228,5 @@ plt.legend()
 plt.suptitle('Total loss during training')
 plt.savefig('loss.png')
 
-# Save the NN:
-torch.save(solver._get_internal_variables()['best_nets'], 'nets.ph')
+# Save the neural network:
+torch.save(solver._get_internal_variables()['best_nets'], 'nets_HS.ph')
