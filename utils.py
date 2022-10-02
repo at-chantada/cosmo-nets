@@ -75,7 +75,7 @@ def reparam_CPL(ANN, z, w_0, w_1):
 
     x_1_0, x_2_0 = ANN(z_0s)
 
-    out = np.e**((1 + w_0)*(x_1 - x_1_0) + w_1*(x_2 - x_2_0))
+    out = np.e**(3*(1 + w_0)*(x_1 - x_1_0) + 3*w_1*(x_2 - x_2_0))
     return out
 
 
