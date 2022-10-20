@@ -206,6 +206,8 @@ def custom_loss_HS(res, f, t):
 solver = BundleSolver1D(ode_system=ODEs_HS,
                         conditions=conditions,
                         t_min=z_prime_0, t_max=z_prime_f,
+                        theta_min=(b_prime_min, Om_m_0_min),
+                        theta_max=(b_prime_max, Om_m_0_max),
                         train_generator=train_gen,
                         valid_generator=valid_gen,
                         criterion=custom_loss_HS
