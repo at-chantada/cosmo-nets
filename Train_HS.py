@@ -193,7 +193,7 @@ def custom_loss_HS(res, f, t):
 
     loss_C_2 = (1 - 2*y*Om_m_0*((1+z)**3)*(r+b)/(r*Om*(1-Om_m_0)*(r+b-2)))**2
 
-    loss_C_3 = (1 - 2*v*Om_m_0*((1+z)**3)*((r+b)**2)/(r*Om*(1-Om_m_0)*((r+b-2)**2)))**2
+    loss_C_3 = (1 - 2*v*Om_m_0*((1+z)**3)*((r+b)**2)/(r*Om*(1-Om_m_0)*(((r+b)**2)-2*b)))**2
 
     loss_C = loss_C_1 + loss_C_2 + loss_C_3
 
