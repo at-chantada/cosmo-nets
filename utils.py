@@ -148,8 +148,9 @@ class quint_reparams:
 
 
 class HS_reparams:
-    def __init__(self, z_0, alpha):
+    def __init__(self, z_0, b_prime_min, alpha):
         self.z_0 = z_0
+        self.b_prime_min = b_prime_min
         self.alpha = alpha
 
     def x_reparam(self, ANN, z_prime, b_prime, Om_m_0):
@@ -175,7 +176,7 @@ class HS_reparams:
 
         x_N = ANN(z_prime, b_prime, Om_m_0)
 
-        out = (1 - torch.exp(-z_prime)) * (1 - torch.exp(alpha*(-b_prime))) * x_N
+        out = (1 - torch.exp(-z_prime)) * (1 - torch.exp(-alpha*(b_prime - self.b_prime_min))) * x_N
         return out
 
     def y_reparam(self, ANN, z_prime, b_prime, Om_m_0):
@@ -213,7 +214,7 @@ class HS_reparams:
 
         y_hat = (Om_m_0*((1 + z)**3) + 2*(1 - Om_m_0))/(2*(Om_m_0*((1 + z)**3) + 1 - Om_m_0))
 
-        out = y_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(alpha*(-b_prime))) * y_N
+        out = y_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(-alpha*(b_prime - self.b_prime_min))) * y_N
         return out
 
     def v_reparam(self, ANN, z_prime, b_prime, Om_m_0):
@@ -251,7 +252,7 @@ class HS_reparams:
 
         v_hat = (Om_m_0*((1 + z)**3) + 4*(1 - Om_m_0))/(2*(Om_m_0*((1 + z)**3) + 1 - Om_m_0))
 
-        out = v_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(alpha*(-b_prime))) * v_N
+        out = v_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(-alpha*(b_prime - self.b_prime_min))) * v_N
         return out
 
     def Om_reparam(self, ANN, z_prime, b_prime, Om_m_0):
@@ -288,7 +289,7 @@ class HS_reparams:
 
         Om_hat = Om_m_0*((1 + z)**3)/((Om_m_0*((1 + z)**3) + 1 - Om_m_0))
 
-        out = Om_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(alpha*(-b_prime))) * Om_N
+        out = Om_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(-alpha*(b_prime - self.b_prime_min))) * Om_N
         return out
 
     def r_prime_reparam(self, ANN, z_prime, b_prime, Om_m_0):
@@ -330,5 +331,5 @@ class HS_reparams:
         else:
             r_prime_hat = np.log(r_hat)
 
-        out = r_prime_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(alpha*(-b_prime))) * r_prime_N
+        out = r_prime_hat + (1 - torch.exp(-z_prime)) * (1 - torch.exp(-alpha*(b_prime - self.b_prime_min))) * r_prime_N
         return out

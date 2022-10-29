@@ -33,28 +33,31 @@ def ODEs_HS(x, y, v, Om, r_prime, z_prime, *theta):
 
     :math:`\displaystyle
     \mathcal{R}_1\left(\tilde{x},\tilde{y},\tilde{v},\tilde{\Omega},\tilde{r}^{\prime},z^{\prime},b^{\prime}\right)=
-    \dfrac{d\tilde{x}}{dz^{\prime}} + \dfrac{z_{0}}{z_{0}\left(1-z^{\prime}\right)+1}
-    \left(-\tilde{\Omega}-2\tilde{v}+\tilde{x}+4\tilde{y}+\tilde{x}\tilde{v}+\tilde{x}^{2}\right),`
+    \dfrac{1}{z_0}\dfrac{d\tilde{x}}{dz^{\prime}}
+    + \dfrac{-\tilde{\Omega}-2\tilde{v}+\tilde{x}+4\tilde{y}+\tilde{x}\tilde{v}+\tilde{x}^{2}}
+    {z_{0}\left(1-z^{\prime}\right)+1},`
 
     :math:`\displaystyle
     \mathcal{R}_2\left(\tilde{x},\tilde{y},\tilde{v},\tilde{\Omega},\tilde{r}^{\prime},z^{\prime},b^{\prime}\right)=
-    \dfrac{d\tilde{y}}{dz^{\prime}} - \dfrac{z_{0}}{z_{0}\left(1-z^{\prime}\right)+1}
-    \left(\tilde{v}\tilde{x}\Gamma\left(\tilde{r}^{\prime}\right)-\tilde{x}\tilde{y}+4\tilde{y}-2\tilde{y}\tilde{v}\right),`
+    \dfrac{1}{z_0}\dfrac{d\tilde{y}}{dz^{\prime}}
+    - \dfrac{\tilde{v}\tilde{x}\Gamma\left(\tilde{r}^{\prime}\right)-\tilde{x}\tilde{y}+4\tilde{y}-2\tilde{y}\tilde{v}}
+    {z_{0}\left(1-z^{\prime}\right)+1},`
 
     :math:`\displaystyle
     \mathcal{R}_3\left(\tilde{x},\tilde{y},\tilde{v},\tilde{\Omega},\tilde{r}^{\prime},z^{\prime},b^{\prime}\right)=
-    \dfrac{d\tilde{v}}{dz^{\prime}} - \dfrac{z_{0}\tilde{v}}{z_{0}\left(1-z^{\prime}\right)+1}
-    \left(\tilde{x}\Gamma\left(\tilde{r}^{\prime}\right)+4-2\tilde{v}\right),`
+    \dfrac{1}{z_0}\dfrac{d\tilde{v}}{dz^{\prime}}
+    - \dfrac{\tilde{v}\left(\tilde{x}\Gamma\left(\tilde{r}^{\prime}\right)+4-2\tilde{v}\right)}
+    {z_{0}\left(1-z^{\prime}\right)+1},`
 
     :math:`\displaystyle
     \mathcal{R}_4\left(\tilde{x},\tilde{y},\tilde{v},\tilde{\Omega},\tilde{r}^{\prime},z^{\prime},b^{\prime}\right)=
-    \dfrac{d\tilde{\Omega}}{dz^{\prime}}
-    + \dfrac{z_{0}\tilde{\Omega}}{z_{0}\left(1-z^{\prime}\right)+1}\left(-1+2\tilde{v}+\tilde{x}\right),`
+    \dfrac{1}{z_0}\dfrac{d\tilde{\Omega}}{dz^{\prime}}
+    + \dfrac{\tilde{\Omega}\left(-1+2\tilde{v}+\tilde{x}\right)}{z_{0}\left(1-z^{\prime}\right)+1},`
 
     :math:`\displaystyle
     \mathcal{R}_5\left(\tilde{x},\tilde{y},\tilde{v},\tilde{\Omega},\tilde{r}^{\prime},z^{\prime},b^{\prime}\right)=
-    \dfrac{d\tilde{r}^{\prime}}{dz^{\prime}}
-    - \dfrac{z_{0}\Gamma\left(\tilde{r}^{\prime}\right)\tilde{x}}{z_{0}\left(1-z^{\prime}\right)+1},`
+    \dfrac{1}{z_0}\dfrac{d\tilde{r}^{\prime}}{dz^{\prime}}
+    - \dfrac{\Gamma\left(\tilde{r}^{\prime}\right)\tilde{x}}{z_{0}\left(1-z^{\prime}\right)+1},`
 
     where :math:`\Gamma` is:
 
@@ -88,18 +91,18 @@ def ODEs_HS(x, y, v, Om, r_prime, z_prime, *theta):
     Gamma = (r + b)*(((r + b)**2) - 2*b)/(4*r*b)
 
     # Equation System:
-    res_1 = diff(x, z_prime) + z_0*(-Om - 2*v + x + 4*y + x*v + x**2)/(z + 1)
-    res_2 = diff(y, z_prime) - z_0*(v*x*Gamma - x*y + 4*y - 2*y*v)/(z + 1)
-    res_3 = diff(v, z_prime) - z_0*v*(x*Gamma + 4 - 2*v)/(z + 1)
-    res_4 = diff(Om, z_prime) + z_0*Om*(-1 + 2*v + x)/(z + 1)
-    res_5 = diff(r_prime, z_prime) - z_0*(Gamma*x)/(z + 1)
+    res_1 = (diff(x, z_prime)/z_0) + (-Om - 2*v + x + 4*y + x*v + x**2)/(z + 1)
+    res_2 = (diff(y, z_prime)/z_0) - (v*x*Gamma - x*y + 4*y - 2*y*v)/(z + 1)
+    res_3 = (diff(v, z_prime)/z_0) - v*(x*Gamma + 4 - 2*v)/(z + 1)
+    res_4 = (diff(Om, z_prime)/z_0) + Om*(-1 + 2*v + x)/(z + 1)
+    res_5 = (diff(r_prime, z_prime)/z_0) - (Gamma*x)/(z + 1)
 
     return [res_1, res_2, res_3, res_4, res_5]
 
 
 # Define the custom reparametrizations that enforce the initial conditions:
 
-HS = HS_reparams(z_0=z_0, alpha=1/6)
+HS = HS_reparams(z_0=z_0, b_prime_min=b_prime_min, alpha=1/6)
 
 conditions = [CustomCondition(HS.x_reparam),
               CustomCondition(HS.y_reparam),
@@ -189,11 +192,11 @@ def custom_loss_HS(res, f, t):
 
     loss_R = torch.exp(-w * z_prime * (b_prime - b_prime_min)) * (res ** 2)
 
-    loss_C_1 = (1 - Om + v - x - y)**2
+    loss_C_1 = (Om + v - x - y - 1)**2
 
-    loss_C_2 = (1 - 2*y*Om_m_0*((1+z)**3)*(r+b)/(r*Om*(1-Om_m_0)*(r+b-2)))**2
+    loss_C_2 = (2*y*Om_m_0*((1+z)**3)*(r+b)/(r*Om*(1-Om_m_0)*(r+b-2)) - 1)**2
 
-    loss_C_3 = (1 - 2*v*Om_m_0*((1+z)**3)*((r+b)**2)/(r*Om*(1-Om_m_0)*(((r+b)**2)-2*b)))**2
+    loss_C_3 = (2*v*Om_m_0*((1+z)**3)*((r+b)**2)/(r*Om*(1-Om_m_0)*(((r+b)**2)-2*b)) - 1)**2
 
     loss_C = loss_C_1 + loss_C_2 + loss_C_3
 
