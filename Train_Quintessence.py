@@ -101,7 +101,7 @@ solver = BundleSolver1D(ode_system=ODEs_quint,
                         t_min=N_prime_0, t_max=N_prime_f,
                         theta_min=(lam_prime_min, Om_m_0_min),
                         theta_max=(lam_prime_max, Om_m_0_max),
-                        criterion=weighted_loss_quint,
+                        loss_fn=weighted_loss_quint,
                         )
 
 # Set the amount of interations to train the solver:

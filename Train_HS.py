@@ -213,7 +213,7 @@ solver = BundleSolver1D(ode_system=ODEs_HS,
                         theta_max=(b_prime_max, Om_m_0_max),
                         train_generator=train_gen,
                         valid_generator=valid_gen,
-                        criterion=custom_loss_HS
+                        loss_fn=custom_loss_HS
                         )
 
 # Set the amount of interations to train the solver:

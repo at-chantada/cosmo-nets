@@ -71,7 +71,7 @@ solver = BundleSolver1D(ode_system=ODE_LCDM,
                         t_min=z_0, t_max=z_f,
                         theta_min=Om_m_0_min,
                         theta_max=Om_m_0_max,
-                        criterion=weighted_loss_LCDM,
+                        loss_fn=weighted_loss_LCDM,
                         )
 
 # Set the amount of interations to train the solver:
