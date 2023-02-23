@@ -30,6 +30,8 @@ the model's differential equation, and saves it in the current directory along w
 Then, the corresponding loading scirpt can be used to load the saved network and use it. In the example it is used to plot the Hubble parameter for different
 values of the model's parameters, and save that plot.
 
+Keep in mind that to run any script in this repository (exept the ones that correspond to $\Lambda \mathrm{CDM}$), the script must be located in the same directory as where the `utils.py` script (from this repository) is located.
+
 # API Reference
 Because the scripts use the [neurodiffeq](https://github.com/NeuroDiffGym/neurodiffeq) library, there are classes such as `BundleSolver1D` and `Generator1D`.
 The detailed descriptions of these can be found in [neurodiffeq's API Reference](https://neurodiffeq.readthedocs.io/en/latest/api.html). 
