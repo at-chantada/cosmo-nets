@@ -1,9 +1,9 @@
-# Cosmological informed neural networks
+# Cosmology-informed neural networks
 
 # Introduction
 
 This repository contains Python scripts related to the following work: 
-[Cosmological informed neural networks to solve the background dynamics of the Universe](https://arxiv.org/abs/2205.02945).
+[Cosmology-informed neural networks to solve the background dynamics of the Universe](https://arxiv.org/abs/2205.02945) (DOI: [10.1103/PhysRevD.107.063523](https://doi.org/10.1103/PhysRevD.107.063523)).
 The aim of this repository is to share examples of how to train neural netowrks to be bundle solutions of a differential system.
 In particular, the examples here concern the background dynamics of the Universe for four different cosmological models:
 * The Lambda Cold Dark Matter model $\left(\Lambda \mathrm{CDM}\right)$.
