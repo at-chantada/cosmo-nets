@@ -25,7 +25,7 @@ conditions = [CustomCondition(HS.x_reparam),
 
 # Incorporate the nets and the reparametrizations into a solver:
 
-v = BundleSolution1D([nets[1]], [conditions[1]])
+v = BundleSolution1D([nets[2]], [conditions[2]])
 r_prime = BundleSolution1D([nets[4]], [conditions[4]])
 
 
